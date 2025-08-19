@@ -1,0 +1,104 @@
+/* src/components/Common/Footer.css */
+
+.app-footer {
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-card-border);
+  padding: var(--space-20) var(--space-24);
+  margin-top: auto;
+  position: relative;
+  z-index: 10;
+}
+
+.footer-content {
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-16);
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.footer-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.heart {
+  color: #e74c3c;
+  font-size: var(--font-size-md);
+  animation: heartbeat 2s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.footer-link {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  position: relative;
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.footer-link:hover {
+  color: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+.footer-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover));
+  transition: width var(--duration-fast) var(--ease-standard);
+}
+
+.footer-link:hover::after {
+  width: 100%;
+}
+
+.footer-right {
+  display: flex;
+  align-items: center;
+}
+
+.footer-version {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+  background: var(--color-secondary);
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app-footer {
+    padding: var(--space-16);
+    text-align: center;
+  }
+  
+  .footer-content {
+    flex-direction: column;
+    gap: var(--space-12);
+  }
+  
+  .footer-left {
+    justify-content: center;
+  }
+}

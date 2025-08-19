@@ -1,5 +1,6 @@
 // src/App.js - Updated with Real Spotify Authentication
 import React, { useEffect } from 'react';
+import Footer from './components/Common/Footer';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { spotifyAPI } from './services/spotify';
@@ -63,21 +64,26 @@ const AppContent = () => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          {/* Auth callback route (public) */}
-          <Route path="/callback" element={<AuthCallback />} />
-          
-          {/* All other routes require authentication */}
-          <Route path="/*" element={
-            <ProtectedRoute>
-              <AppContent />
-            </ProtectedRoute>
-          } />
-        </Routes>
-      </Router>
+      <div className="App" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <Router>
+          <Navigation />
+          <div style={{ flex: 1 }}>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/callback" element={<AuthCallback />} />
+              <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/top-tracks" element={<ProtectedRoute><TopTracks /></ProtectedRoute>} />
+              <Route path="/top-artists" element={<ProtectedRoute><TopArtists /></ProtectedRoute>} />
+              <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+          <Footer />
+        </Router>
+      </div>
     </AuthProvider>
   );
 }
+
 
 export default App;
