@@ -1,0 +1,69 @@
+.time-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.time-selector-label {
+  font-size: 14px;
+  color: #b3b3b3;
+  font-weight: 500;
+}
+
+.time-selector-dropdown {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 160px;
+}
+
+.time-selector-dropdown:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.time-selector-dropdown:focus {
+  outline: none;
+  border-color: #1DB954;
+  box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.2);
+}
+
+.time-selector-dropdown option {
+  background: #191414;
+  color: #ffffff;
+  padding: 8px;
+}
+
+.time-selector-display {
+  font-size: 12px;
+  color: #888888;
+  text-align: right;
+}
+
+.current-period {
+  color: #1DB954;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .time-selector {
+    align-items: stretch;
+    width: 100%;
+  }
+  
+  .time-selector-dropdown {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .time-selector-display {
+    text-align: center;
+  }
+}
