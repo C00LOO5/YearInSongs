@@ -1,4 +1,5 @@
-// src/contexts/AuthContext.js
+// src/contexts/AuthContext.js - FIXED VERSION
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext();
@@ -18,12 +19,14 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Spotify OAuth configuration
+  // Spotify OAuth configuration - FIXED VARIABLE NAMES
   const CLIENT_ID = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
   const CLIENT_SECRET = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET;
-  const REDIRECT_URI = process.env.REACT_APP_REDIRECT_URI;
-  const AUTH_URL = process.env.REACT_APP_SPOTIFY_AUTH_URL;
-  const TOKEN_URL = process.env.REACT_APP_SPOTIFY_TOKEN_URL;
+  const REDIRECT_URI = process.env.REACT_APP_SPOTIFY_REDIRECT_URI; // FIXED
+  
+  // FIXED - Use hardcoded URLs (these don't change)
+  const AUTH_URL = 'https://accounts.spotify.com/authorize';
+  const TOKEN_URL = 'https://accounts.spotify.com/api/token';
 
   const SCOPES = [
     'user-read-private',
@@ -69,7 +72,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // FIXED - Add debug logging and proper error handling
   const login = () => {
+    console.log('🔐 Starting Spotify login...');
+    console.log('Client ID:', CLIENT_ID ? 'Present' : 'MISSING');
+    console.log('Redirect URI:', REDIRECT_URI);
+    
+    if (!CLIENT_ID) {
+      console.error('❌ Missing REACT_APP_SPOTIFY_CLIENT_ID');
+      setError('Missing Spotify Client ID');
+      return;
+    }
+    
+    if (!REDIRECT_URI) {
+      console.error('❌ Missing REACT_APP_SPOTIFY_REDIRECT_URI');
+      setError('Missing redirect URI');
+      return;
+    }
+
     const params = new URLSearchParams({
       client_id: CLIENT_ID,
       response_type: 'code',
@@ -78,7 +98,10 @@ export const AuthProvider = ({ children }) => {
       show_dialog: 'true'
     });
 
-    window.location.href = `${AUTH_URL}?${params.toString()}`;
+    const authUrl = `${AUTH_URL}?${params.toString()}`;
+    console.log('🚀 Redirecting to:', authUrl);
+    
+    window.location.href = authUrl;
   };
 
   const handleAuthCallback = async (code) => {
