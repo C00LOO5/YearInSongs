@@ -1,6 +1,6 @@
-// src/contexts/AuthContext.js - FIXED VERSION
+// src/contexts/AuthContext.js -
 
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 const AuthContext = createContext();
 
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
   // Spotify OAuth configuration - FIXED VARIABLE NAMES
   const CLIENT_ID = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
   const CLIENT_SECRET = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET;
-  const REDIRECT_URI = process.env.REACT_APP_SPOTIFY_REDIRECT_URI; // FIXED
+  const REDIRECT_URI = process.env.REACT_APP_REDIRECT_URI;
 
   // FIXED - Use hardcoded URLs (these don't change)
   const AUTH_URL = 'https://accounts.spotify.com/authorize';
@@ -151,7 +151,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-const refreshAccessToken = async (current_refresh_token) => {
+  const refreshAccessToken = async (current_refresh_token) => {
     try {
       const response = await fetch(TOKEN_URL, {
         method: 'POST',
@@ -230,7 +230,7 @@ const refreshAccessToken = async (current_refresh_token) => {
     return !!(accessToken && user);
   };
 
-const getValidToken = async () => {
+  const getValidToken = async () => {
     // Check local storage directly to prevent race conditions on page load
     const currentToken = accessToken || localStorage.getItem('spotify_access_token');
     const currentRefreshToken = refreshToken || localStorage.getItem('spotify_refresh_token');
