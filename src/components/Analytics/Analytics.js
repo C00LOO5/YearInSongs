@@ -1,159 +1,146 @@
-// src/components/Analytics/Analytics.js - Fixed Navigation
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+// src/components/Analytics/Analytics.js
+import { useCallback, useEffect, useState } from 'react';
+import { spotifyAPI } from '../../services/spotify';
+import Loading from '../Common/Loading';
+import '../Music/TopTracks.css'; // Import the exact CSS from Top Tracks
+import PieChart from '../Visualization/PieChart';
 import './Analytics.css';
 
 const Analytics = () => {
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [timeRange, setTimeRange] = useState('medium_term');
+  const [genreData, setGenreData] = useState(null);
 
-  // Fixed navigation function that preserves auth state
-  const navigateToPage = (path) => {
-    navigate(path);
-    // Scroll to top after navigation
-    setTimeout(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-    }, 100);
+  const loadAnalyticsData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const topArtistsData = await spotifyAPI.getTopArtists(timeRange, 50).catch(() => ({ items: [] }));
+      const artists = topArtistsData.items || [];
+
+      if (artists.length === 0) {
+        setGenreData(null);
+        setLoading(false);
+        return;
+      }
+
+      const genreCounts = {};
+      artists.forEach(artist => {
+        if (artist.genres) {
+          artist.genres.forEach(genre => {
+            genreCounts[genre] = (genreCounts[genre] || 0) + 1;
+          });
+        }
+      });
+
+      const sortedGenres = Object.entries(genreCounts)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 6);
+
+      if (sortedGenres.length === 0) {
+        setGenreData(null);
+        setLoading(false);
+        return;
+      }
+
+      setGenreData(
+        sortedGenres.map(([genre, count]) => ({
+          genre: genre.charAt(0).toUpperCase() + genre.slice(1),
+          count: count
+        }))
+      );
+
+    } catch (err) {
+      console.error('Error loading analytics:', err);
+      setError(err.message || 'Failed to load analytics data');
+    } finally {
+      setLoading(false);
+    }
+  }, [timeRange]);
+
+  useEffect(() => {
+    loadAnalyticsData();
+  }, [loadAnalyticsData]);
+
+  const timeOptions = [
+    { value: 'short_term', label: 'Last 4 Weeks', emoji: '🔥' },
+    { value: 'medium_term', label: 'Last 6 Months', emoji: '📊' },
+    { value: 'long_term', label: 'All Time', emoji: '⭐' }
+  ];
+
+  const getTimeRangeLabel = (range) => {
+    return timeOptions.find(opt => opt.value === range)?.label || 'Last 6 Months';
   };
 
-  return (
-    <div className="analytics-coming-soon">
-      {/* Animated Background */}
-      <div className="coming-soon-background">
-        <div className="bg-gradient-analytics-1"></div>
-        <div className="bg-gradient-analytics-2"></div>
-        <div className="floating-icons">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className={`floating-icon icon-${i + 1}`}>
-              {['📊', '📈', '🎵', '📉', '🎧', '📋'][i]}
-            </div>
-          ))}
-        </div>
-      </div>
+  if (loading) {
+    return <Loading message="Analyzing your music genres..." />;
+  }
 
-      {/* Main Content */}
-      <div className="coming-soon-content">
-        
-        {/* Hero Section */}
-        <div className="hero-section-coming-soon">
-          <div className="coming-soon-icon">
-            <div className="icon-wrapper">
-              <span className="main-icon">📊</span>
-              <div className="icon-rings">
-                <div className="ring ring-1"></div>
-                <div className="ring ring-2"></div>
-                <div className="ring ring-3"></div>
-              </div>
-            </div>
-          </div>
-          
-          <h1 className="coming-soon-title">
-            Analytics
-            <span className="title-accent">Coming Soon</span>
-          </h1>
-          
-          <p className="coming-soon-subtitle">
-            We're building something amazing for you! Get ready for deep insights into your music taste, 
-            listening patterns, and personalized analytics that will help you discover more about your musical journey.
+  if (error) {
+    return (
+      <div className="error-container">
+        <h2>Unable to analyze data</h2>
+        <p>{error}</p>
+        <button onClick={loadAnalyticsData} className="retry-button">Try Again</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="top-tracks-page"> {/* Reuse main wrapper class */}
+
+      {/* Header Section Matched Exactly to TopTracks */}
+      <div className="tracks-header">
+        <div className="header-content">
+          <h1 className="page-title">📊 Your Genre Distribution</h1>
+          <p className="page-subtitle">
+            Based on your top artists • {getTimeRangeLabel(timeRange)}
           </p>
         </div>
 
-        {/* Features Preview */}
-        <div className="features-preview">
-          <div className="features-grid">
-            
-            <div className="feature-card">
-              <div className="feature-icon">📈</div>
-              <h3>Listening Trends</h3>
-              <p>Track your music evolution over time with detailed charts and insights</p>
-            </div>
-            
-            <div className="feature-card">
-              <div className="feature-icon">🎨</div>
-              <h3>Genre Analysis</h3>
-              <p>Discover your genre preferences and how they change throughout the year</p>
-            </div>
-            
-            <div className="feature-card">
-              <div className="feature-icon">⏰</div>
-              <h3>Time Patterns</h3>
-              <p>See when you listen most and what moods drive your music choices</p>
-            </div>
-            
-            <div className="feature-card">
-              <div className="feature-icon">🔍</div>
-              <h3>Deep Insights</h3>
-              <p>Get personalized recommendations based on your unique listening patterns</p>
-            </div>
-            
-            <div className="feature-card">
-              <div className="feature-icon">📊</div>
-              <h3>Statistics</h3>
-              <p>Comprehensive stats about your artists, tracks, and musical journey</p>
-            </div>
-            
-            <div className="feature-card">
-              <div className="feature-icon">🎯</div>
-              <h3>Predictions</h3>
-              <p>AI-powered predictions for your next favorite songs and artists</p>
-            </div>
-            
-          </div>
-        </div>
-
-        {/* Timeline */}
-        <div className="timeline-section">
-          <h2>What's Coming</h2>
-          <div className="timeline">
-            <div className="timeline-item active">
-              <div className="timeline-dot"></div>
-              <div className="timeline-content">
-                <h4>✅ Phase 1: Foundation</h4>
-                <p>Dashboard, Top Tracks & Artists - <strong>Complete!</strong></p>
-              </div>
-            </div>
-            
-            <div className="timeline-item upcoming">
-              <div className="timeline-dot"></div>
-              <div className="timeline-content">
-                <h4>🚧 Phase 2: Analytics</h4>
-                <p>Advanced insights and data visualization - <strong>In Development</strong></p>
-              </div>
-            </div>
-            
-            <div className="timeline-item future">
-              <div className="timeline-dot"></div>
-              <div className="timeline-content">
-                <h4>🔮 Phase 3: AI Features</h4>
-                <p>Smart recommendations and predictions - <strong>Coming Soon</strong></p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* CTA Section - FIXED NAVIGATION */}
-        <div className="cta-section">
-          <div className="cta-card">
-            <h3>Stay Tuned! 🎵</h3>
-            <p>In the meantime, explore your current music data in the Dashboard, Tracks, and Artists sections.</p>
-            <div className="cta-buttons">
-              <button 
-                className="btn btn-primary"
-                onClick={() => navigateToPage('/')}
+        <div className="tracks-controls">
+          <div className="time-selector-dropdown">
+            <label htmlFor="timeRange" className="selector-label">
+              Time Period:
+            </label>
+            <div className="dropdown-container">
+              <select
+                id="timeRange"
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value)}
+                className="time-dropdown"
               >
-                <span>🏠</span>
-                Back to Dashboard
-              </button>
-              <button 
-                className="btn btn-secondary"
-                onClick={() => navigateToPage('/tracks')}
-              >
-                <span>🎵</span>
-                Explore Tracks
-              </button>
+                {timeOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.emoji} {option.label}
+                  </option>
+                ))}
+              </select>
+              <div className="dropdown-arrow">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7 10l5 5 5-5z" />
+                </svg>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
+      {/* Chart Card */}
+      <div className="content-card" style={{ background: 'rgba(38, 40, 40, 0.75)', backdropFilter: 'blur(20px)', padding: 'var(--space-32)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-card-border)', boxShadow: 'var(--shadow-sm)' }}>
+        {genreData ? (
+          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <PieChart genreData={genreData} />
+          </div>
+        ) : (
+          <div className="empty-state-elevated" style={{ textAlign: 'center', padding: '60px 20px' }}>
+            <div className="empty-icon" style={{ fontSize: '48px', opacity: 0.5, marginBottom: '16px' }}>🎧</div>
+            <h4 style={{ color: 'var(--color-text)', margin: '0 0 8px 0', fontSize: 'var(--font-size-xl)' }}>Not enough data</h4>
+            <p style={{ color: 'var(--color-text-secondary)', margin: 0 }}>Listen to more music to generate your genre profile.</p>
+          </div>
+        )}
       </div>
     </div>
   );
