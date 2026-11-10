@@ -123,7 +123,9 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to exchange authorization code');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('🛑 Spotify Token Error details:', errorData);
+        throw new Error(`Spotify rejected the code: ${errorData.error_description || errorData.error || 'Unknown error'}`);
       }
 
       const data = await response.json();
